@@ -1,0 +1,51 @@
+#!/usr/bin/python                                                                                                               
+
+import sys, os, subprocess, getopt
+
+DIFF_TOOL = "diff -rNu"
+
+index = -1
+diff_ver = -1
+target_index = -1
+
+opts, args = getopt.getopt(sys.argv[1:], "t:r:")
+for o, a in opts:
+    if o == "-t":
+        DIFF_TOOL=a
+    if o == "-r":
+        diff_ver=a
+
+if len(args)!=1:
+    print "Error! Usage: " + sys.argv[0]+ " [-t difftool] [-r version] file.\nNote that version is an integer and we assume that \"main\" branch will be diffed."
+    os._exit(-1)
+if not os.path.isfile(args[0]):
+    print "Error! Not find file."
+    os._exit(-1)
+
+p1=subprocess.Popen(['/bin/csh', '-c', 'ct lsh ' + args[0]], stdout=subprocess.PIPE)
+ct_log = p1.stdout.read()
+ct_log_array = ct_log.splitlines()
+
+for index in range(0, len(ct_log_array)-1):
+    #print ct_log_array[index]
+    if ct_log_array[index].startswith('--'):
+        if diff_ver != -1 and 'create' in ct_log_array[index]:
+            target_index = index
+            break
+        elif 'checkout' in ct_log_array[index]:
+            target_index = index
+            break
+
+if target_index != -1:
+        ct_log_first_line_array = ct_log_array[target_index].split()
+        if diff_ver == -1:
+            diff_command = DIFF_TOOL + " " + ct_log_first_line_array[4] + "@@" + ct_log_first_line_array[6] + ' ' + ct_log_first_line_array[4]
+            os.system(diff_command);
+        else:
+            diff_command = DIFF_TOOL + " " + ct_log_first_line_array[4] + "@@/main/" + str(diff_ver) + ' ' + ct_log_first_line_array[4]
+            os.system(diff_command);
+        print "Command: " + diff_command
+        os._exit(0)
+
+print "Error! Not found \"checkout\" file/dir."
+
