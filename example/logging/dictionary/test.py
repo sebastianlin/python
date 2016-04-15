@@ -1,6 +1,9 @@
 
 """
 This supports log file rotating.
+
+We donot know how to filter some types of message to the console and the file.
+Now only error and critical message will be directed to the console and the file.
 """
 
 
@@ -11,7 +14,7 @@ LOG_SETTINGS = {
 	'handlers': {
 	    'console': {
     	    'class': 'logging.StreamHandler',
-        	'level': 'INFO',
+        	'level': 'ERROR',
 	        'formatter': 'detailed',
     	    'stream': 'ext://sys.stdout',
 	    },
@@ -48,8 +51,10 @@ logging.config.dictConfig(LOG_SETTINGS)
 logger = logging.getLogger('extensive')
 
 for i in range(0,10):
-	logger.warning("This is from Runner %d"%(i))
-
+	logger.info("This is from Runner %d"%(i))
+	logger.debug("This is from Runner %d"%(i))
+	logger.error("This is from Runner %d"%(i))
+	logger.critical("This is from Runner %d"%(i))
 
 
 
