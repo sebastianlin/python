@@ -5,7 +5,7 @@
 import sys, os
 
 # Header files containing these strings won't be displayed
-header_exclude_files=["u-boot64/arch/", "u-boot64/include/", "scx35l64_ss_sharklt8"]
+header_exclude_files=["u-boot64/arch/", "u-boot64/include/", "scx35l64_ss_sharklt8", "gcc/linux-x86"]
 
 START_GROUP_STR='START GROUP'
 END_GROUP_STR='END GROUP'
@@ -40,11 +40,13 @@ def traverse_dir(dirname_str):
 										fileName2=line[len(LOAD_STR):-len(".o\n")]
 										dirName2 = dirName[:-len("out")]
 										newFile = dirName2+fileName2+".i"
+										newFile=os.path.abspath(newFile)
 										if os.path.isfile(newFile):							# If .o has a related .i file
 											if newFile not in sub_i_files:
 												sub_i_files.append(newFile)
 										else:
 											newFile = dirName+"/"+line[len("LOAD "):-1]
+											newFile=os.path.abspath(newFile)
 											if newFile not in sub_s_files:
 												sub_s_files.append(newFile)
 									elif line.endswith(".a\n"):								# Handle .a files
@@ -53,14 +55,12 @@ def traverse_dir(dirname_str):
 											newFile = fileName2
 										else:
 											newFile = dirName+"/"+fileName2
+										newFile=os.path.abspath(newFile)
 										if newFile not in sub_a_files:
 #											if os.path.isfile(newFile):
 											sub_a_files.append(newFile)
-	file_path_list_to_absolute(sub_i_files)
 	sub_i_files.sort()
-	file_path_list_to_absolute(sub_s_files)
 	sub_s_files.sort()
-	file_path_list_to_absolute(sub_a_files)
 	sub_s_files.sort()
 	return sub_i_files, sub_s_files, sub_a_files
 
@@ -70,17 +70,17 @@ def parse_i_file(dir, file):
 	header_list=[]
 	with open(file, 'r') as f:
 		for line in f:
-			if line.startswith('# ') and line.endswith('"\n'):
+			if line.startswith('# '):
 				local_file = line[line.index('"')+1:line.rfind('"')]
 				if not local_file.startswith("/"):
 					local_file = dir+local_file
 				if local_file.endswith('.h'):
+					local_file=os.path.abspath(local_file)
 					if local_file not in header_list:
 						header_list.append(local_file)
 				elif local_file.endswith('.c'):
 					if c_file_name == "" :
 						c_file_name = local_file
-	file_path_list_to_absolute(header_list)
 	header_list.sort()
 	return c_file_name, header_list
 
