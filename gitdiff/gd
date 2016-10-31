@@ -1,0 +1,70 @@
+#!/usr/bin/python
+
+import sys, subprocess, os
+
+target_file_array = []
+
+array_size = 0
+
+def check_and_return_filename(line):
+	if line.startswith(b'#'):
+		token = line.split()
+		if len(token) == 3 and token[1].endswith(b':'):
+			return token[2]
+	return False
+
+
+
+p1=subprocess.Popen(['/bin/sh', '-c', 'git status -uno'], stdout=subprocess.PIPE)
+
+gitoutput= p1.stdout.read()
+gitoutputlines = gitoutput.splitlines()
+
+not_staged = 0
+for i, val in enumerate(gitoutputlines):
+	val_str = val.decode("utf-8")
+	if 'Changes not staged for commit' in val_str:
+		not_staged = 1
+	if not_staged == 1:
+		target_file = check_and_return_filename(val)
+		if target_file != False:
+			target_file_array.append(target_file)
+
+array_size = len(target_file_array)
+
+if array_size != 0:
+	print('Choose which file you would like to git diff:')
+for i, val in enumerate(target_file_array):
+	if i < 9:
+		print('\t' + int(i+1).__str__() + ')  ' + val)
+	else:
+		print('\t' + int(i+1).__str__() + ') ' + val)
+
+if array_size == 0:
+	print("No modified file. Quit!")
+	sys.exit()
+
+print('\t' + 'q' + ') ' + val)
+
+user_input = raw_input('>')
+
+if user_input == 'q' or user_input == 'Q':
+	sys.exit()
+
+try:
+	int_user_input = int(user_input)
+	int_user_input = int_user_input - 1
+	if int_user_input < len(target_file_array) and int_user_input >=0:
+		os.system("git diff " + target_file_array[int_user_input])
+		sys.exit()
+except SystemExit:
+		sys.exit()
+
+print("Wrong key-in. Quit!")
+
+
+
+
+
+
+
