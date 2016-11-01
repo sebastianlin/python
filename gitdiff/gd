@@ -30,7 +30,8 @@ def modified_files_show(array):
 	return user_input
 
 
-
+if os.system('git rev-parse') != 0:
+	sys.exit()
 
 p1=subprocess.Popen(['/bin/sh', '-c', 'git status -uno'], stdout=subprocess.PIPE)
 
