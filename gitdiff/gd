@@ -6,12 +6,29 @@ target_file_array = []
 
 array_size = 0
 
+# Check if the pattern is like this and return the path if it is:
+#		#       modified:   ../board/spreadtrum/sc9630/sharklj1/u-boot.lds.c
 def check_and_return_filename(line):
 	if line.startswith(b'#'):
 		token = line.split()
 		if len(token) == 3 and token[1].endswith(b':'):
 			return token[2]
 	return False
+
+def modified_files_show(array):
+	for i, val in enumerate(array):
+		if i < 9:
+			print('\t' + int(i+1).__str__() + ')  ' + val)
+		else:
+			print('\t' + int(i+1).__str__() + ') ' + val)
+	
+	print('\t' + 'q' + ') ')
+	try:
+		user_input = raw_input('>')
+	except KeyboardInterrupt:
+		sys.exit()
+	return user_input
+
 
 
 
@@ -32,35 +49,27 @@ for i, val in enumerate(gitoutputlines):
 
 array_size = len(target_file_array)
 
-if array_size != 0:
-	print('Choose which file you would like to git diff:')
-for i, val in enumerate(target_file_array):
-	if i < 9:
-		print('\t' + int(i+1).__str__() + ')  ' + val)
-	else:
-		print('\t' + int(i+1).__str__() + ') ' + val)
-
 if array_size == 0:
 	print("No modified file. Quit!")
 	sys.exit()
+else:
+	print('Choose which file you would like to git diff:')
 
-print('\t' + 'q' + ') ' + val)
-
-user_input = raw_input('>')
-
-if user_input == 'q' or user_input == 'Q':
-	sys.exit()
-
-try:
-	int_user_input = int(user_input)
-	int_user_input = int_user_input - 1
-	if int_user_input < len(target_file_array) and int_user_input >=0:
-		os.system("git diff " + target_file_array[int_user_input])
+while True:
+	user_input = modified_files_show(target_file_array)
+	
+	if user_input == 'q' or user_input == 'Q':
 		sys.exit()
-except SystemExit:
-		sys.exit()
-
-print("Wrong key-in. Quit!")
+	
+	try:
+		int_user_input = int(user_input)
+		int_user_input = int_user_input - 1
+		if int_user_input < len(target_file_array) and int_user_input >=0:
+			os.system("git diff " + target_file_array[int_user_input])
+	except ValueError:
+		print("Wrong key-in. Try again!")
+	except:
+		pass
 
 
 
