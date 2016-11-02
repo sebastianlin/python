@@ -30,6 +30,10 @@ def modified_files_show(array):
 	return user_input
 
 
+if len(sys.argv) != 1:
+	print("Donot pass argument!")
+	sys.exit()
+
 if os.system('git rev-parse') != 0:
 	sys.exit()
 
