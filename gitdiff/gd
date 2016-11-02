@@ -16,6 +16,7 @@ def check_and_return_filename(line):
 	return False
 
 def modified_files_show(array):
+	print('Choose which file you would like to apply \'git diff\' on:')
 	for i, val in enumerate(array):
 		if i < 9:
 			print('\t' + int(i+1).__str__() + ')  ' + val)
@@ -23,11 +24,28 @@ def modified_files_show(array):
 			print('\t' + int(i+1).__str__() + ') ' + val)
 	
 	print('\t' + 'q' + ') ')
+	print('\t' + 'h' + ') ')
 	try:
 		user_input = raw_input('>')
 	except KeyboardInterrupt:
 		sys.exit()
 	return user_input
+
+def show_help():
+	command = sys.argv[0].strip()
+	if command.startswith('./'):
+		command = command[2:]
+	print(command + ": \"git status -uno\" is executed and a list of modified files, accompanied by numbers, will show up. For example:")
+	print(">        1)  ../c_source_lookup/c_source_lookup.py")
+	print(">        2)  ../cextension/Makefile")
+	print(">        3)  ../check_sum/crc32.py")
+	print(">        4)  gd")
+	print(">        q)")
+	print(">        h) ")
+	print(">    Type '1' to show the diff of ../c_source_lookup/c_source_lookup.py.")
+	print(">    Type 'v1' to show the diff of ../c_source_lookup/c_source_lookup.py by vimdiff.")
+	print(">    Type 'm1' to show the diff of ../c_source_lookup/c_source_lookup.py by meld.")
+	print("")
 
 
 if len(sys.argv) != 1:
@@ -57,20 +75,36 @@ array_size = len(target_file_array)
 if array_size == 0:
 	print("No modified file. Quit!")
 	sys.exit()
-else:
-	print('Choose which file you would like to git diff:')
 
 while True:
 	user_input = modified_files_show(target_file_array)
 	
+	if user_input == 'h' or user_input == 'H':
+		show_help()
+		continue
+
 	if user_input == 'q' or user_input == 'Q':
 		sys.exit()
 	
 	try:
+		vimdiff = 0
+		meld = 0
+
+		if user_input.startswith('v'):
+			vimdiff = 1
+			user_input = user_input[1:]
+		elif user_input.startswith('m'):
+			meld = 1
+			user_input = user_input[1:]
 		int_user_input = int(user_input)
 		int_user_input = int_user_input - 1
 		if int_user_input < len(target_file_array) and int_user_input >=0:
-			os.system("git diff " + target_file_array[int_user_input])
+			if vimdiff == 1:
+				os.system("git difftool -t vimdiff " + target_file_array[int_user_input])
+			elif meld == 1:
+				os.system("meld " + target_file_array[int_user_input])
+			else:
+				os.system("git diff " + target_file_array[int_user_input])
 	except ValueError:
 		print("Wrong key-in. Try again!")
 	except:
