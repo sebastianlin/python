@@ -23,8 +23,8 @@ def modified_files_show(array):
 		else:
 			print('\t' + int(i+1).__str__() + ') ' + val)
 	
-	print('\t' + 'q' + ') ')
-	print('\t' + 'h' + ') ')
+	print('\t' + 'q' + ') <quit>')
+	print('\t' + 'h' + ') <help>')
 	try:
 		user_input = raw_input('>')
 	except KeyboardInterrupt:
