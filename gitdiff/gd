@@ -87,22 +87,28 @@ while True:
 		sys.exit()
 	
 	try:
-		vimdiff = 0
-		meld = 0
+		vimdiff = False
+		meld = False
+		vim = False
 
 		if user_input.startswith('v'):
-			vimdiff = 1
+			vimdiff = True
 			user_input = user_input[1:]
 		elif user_input.startswith('m'):
-			meld = 1
+			meld = True
+			user_input = user_input[1:]
+		elif user_input.startswith('e'):
+			vim = True
 			user_input = user_input[1:]
 		int_user_input = int(user_input)
 		int_user_input = int_user_input - 1
 		if int_user_input < len(target_file_array) and int_user_input >=0:
-			if vimdiff == 1:
+			if vimdiff == True:
 				os.system("git difftool -t vimdiff " + target_file_array[int_user_input])
-			elif meld == 1:
+			elif meld == True:
 				os.system("meld " + target_file_array[int_user_input])
+			elif vim == True:
+				os.system("vim " + target_file_array[int_user_input])
 			else:
 				os.system("git diff " + target_file_array[int_user_input])
 	except ValueError:
