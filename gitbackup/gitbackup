@@ -10,20 +10,33 @@ import subprocess,os,sys,getopt,shutil
 
 tmpdir="/tmp/xxx" 
 from_array=""
-operation=""
+operation=""		# If operation == "", backup files. If operation == "r", restore files.
+version=""			# Use "git diff [version] --name-status"
 
 
-opts, args = getopt.getopt(sys.argv[1:], "r")
+opts, args = getopt.getopt(sys.argv[1:], "rv:")
 for o, a in opts:
 	if o == "-r":
 		operation="r"
+	if o == "-v":
+		version=a
 
 if operation != "r":
 	if not os.path.isdir(tmpdir):
 		print("\"" + tmpdir+"\" doesn't exist.")
 		sys.exit()
-	p1=subprocess.Popen(['git', 'status', '--short'], stdout=subprocess.PIPE)
+	if version != "":
+		p1=subprocess.Popen(['git', 'diff', version, '--name-status'], stdout=subprocess.PIPE)
+	else:
+		p1=subprocess.Popen(['git', 'status', '--short'], stdout=subprocess.PIPE)
 	p1_read = p1.stdout.read()
+
+	# Check exit status
+	p1.communicate()
+	if p1.returncode != 0:
+		print("subprocess exit abnormally.")
+		sys.exit()
+
 	p1_lines= p1_read.splitlines()
 	for line in p1_lines:
 		token=line.decode("utf-8").split()
