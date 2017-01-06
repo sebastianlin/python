@@ -1,0 +1,40 @@
+#!/usr/bin/python3
+# This is used to copy modified files in a git repository to a backup dir.
+# We can copy these files back later.
+# Usage:
+#    ./gitbackup:    Copy modified files to /tmp/xxx
+#    ./gitbackup -r: Copy modified files from /tmp/xxx to current dir.
+
+
+import subprocess,os,sys,getopt,shutil
+
+tmpdir="/tmp/xxx" 
+from_array=""
+operation=""
+
+
+opts, args = getopt.getopt(sys.argv[1:], "r")
+for o, a in opts:
+	if o == "-r":
+		operation="r"
+
+if operation != "r":
+	if not os.path.isdir(tmpdir):
+		print("\"" + tmpdir+"\" doesn't exist.")
+		sys.exit()
+	p1=subprocess.Popen(['git', 'status', '-uno'], stdout=subprocess.PIPE)
+	p1_read = p1.stdout.read()
+	p1_lines= p1_read.splitlines()
+	for line in p1_lines:
+		token=line.decode("utf-8").split()
+		if len(token)>=3 and token[1] == "modified:": 
+			target = token[2]
+			os.makedirs(tmpdir + "/" + target[:target.rfind("/")], exist_ok=True)
+			os.system("cp " + target + " " + tmpdir + "/" + target[:target.rfind("/")])
+else:
+	for dirName, subdirList, fileList in os.walk(tmpdir):
+		for fname in fileList:
+			shutil.copyfile(dirName + "/" + fname, dirName[len(tmpdir)+1:] + "/" + fname)
+#			from_array += "cp " + dirName + "/" + fname + " " + dirName[len(tmpdir):] + ";"
+#	print(from_array)
+
