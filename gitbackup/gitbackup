@@ -22,13 +22,13 @@ if operation != "r":
 	if not os.path.isdir(tmpdir):
 		print("\"" + tmpdir+"\" doesn't exist.")
 		sys.exit()
-	p1=subprocess.Popen(['git', 'status', '-uno'], stdout=subprocess.PIPE)
+	p1=subprocess.Popen(['git', 'status', '--short'], stdout=subprocess.PIPE)
 	p1_read = p1.stdout.read()
 	p1_lines= p1_read.splitlines()
 	for line in p1_lines:
 		token=line.decode("utf-8").split()
-		if len(token)>=3 and token[1] == "modified:": 
-			target = token[2]
+		if len(token)>=2 and token[0] == "M": 
+			target = token[1]
 			os.makedirs(tmpdir + "/" + target[:target.rfind("/")], exist_ok=True)
 			os.system("cp " + target + " " + tmpdir + "/" + target[:target.rfind("/")])
 else:
