@@ -22,9 +22,21 @@ for o, a in opts:
 		version=a
 
 if operation != "r":
+	# Check /tmp/xxx directory
+	if os.listdir(tmpdir) != []:
+		shutil.rmtree(tmpdir)
+		os.mkdir(tmpdir)
 	if not os.path.isdir(tmpdir):
-		print("\"" + tmpdir+"\" doesn't exist.")
-		sys.exit()
+		try:
+			user_input = input("\"" + tmpdir+"\" doesn't exist. Create it? ")
+			if user_input == 'y':
+				os.mkdir(tmpdir)
+			else:
+				print("No creating \"%s\" directory." % (tmpdir))
+				sys.exit()
+		except KeyboardInterrupt:
+			sys.exit()
+
 	if version != "":
 		p1=subprocess.Popen(['git', 'diff', version, '--name-status'], stdout=subprocess.PIPE)
 	else:
